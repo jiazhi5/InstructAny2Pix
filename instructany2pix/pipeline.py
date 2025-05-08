@@ -15,7 +15,7 @@ from instructany2pix.llm.conversation import conv_templates, SeparatorStyle
 import torchaudio
 from diffusers import StableDiffusionXLImg2ImgPipeline,LCMScheduler,StableDiffusionXLInpaintPipeline
 import re
-from .gdino.lib import build_segmentator, subject_consistency
+# from .gdino.lib import build_segmentator, subject_consistency
 from .diffusion.ip_adapter import IPAdapterXL
 from .diffusion.ip_adapter.ip_adapter import ImageProjModel
 from diffusers import StableDiffusionXLPipeline
@@ -98,7 +98,7 @@ class InstructAny2PixPipeline:
         model = model.eval()
         # model.load_state_dict(torch.load('../diffusion_prior.bin',map_location='cpu'))
         #pipe = build_sdxl(ckpt=os.path.join(ckpt,'sdxl'))
-        pipe = StableDiffusionXLPipeline .from_pretrained("stabilityai/stable-diffusion-xl-base-1.0", torch_dtype=torch.float16)
+        pipe = StableDiffusionXLPipeline.from_pretrained("stabilityai/stable-diffusion-xl-base-1.0", torch_dtype=torch.float16)
         # pipe_lcm = build_sdxl_ip(lcm_lora=True)
         #pipe_lcm.enable_model_cpu_offload()
 
@@ -138,7 +138,7 @@ class InstructAny2PixPipeline:
                                  scheduler=self.pipe.scheduler,
                                  image_encoder=self.pipe.image_encoder)
         self.cache = None
-        self.sam,self.gdino = build_segmentator(ckpt)
+        # self.sam,self.gdino = build_segmentator(ckpt)
         diffusion_path = os.path.join(ckpt,'sdxl/ip_adapter_global_local_2_view.bin')
         ip_adapter_xl = IPAdapterXL(pipe,'',ip_ckpt=diffusion_path,device='cuda')
         ip_adapter_xl_inpaint = IPAdapterXL(self.pipe_inpainting,'',ip_ckpt=diffusion_path,device='cuda')
@@ -148,6 +148,7 @@ class InstructAny2PixPipeline:
 
     def set_ip_adaptor(self,pipe):
         self.pipe_retrained = pipe
+
     def forward_llm(self,inst,mm_data=[],use_cache=False):
         if use_cache:
             return self.cache
@@ -198,8 +199,15 @@ class InstructAny2PixPipeline:
 
         self.any2pix_lm.eval()
 
+        # print('djsalsdjas')
+        # print(input_ids.device)
+        # input_ids = input_ids.to("cuda")
+        # print(input_ids.device)
+        # print(self.any2pix_lm.device)
+
         output_ids = self.any2pix_lm.generate(
-            input_ids.cuda(),
+            # input_ids.to("cuda"),
+            input_ids.to(self.any2pix_lm.device),
             images=None,
             do_sample=True,
             temperature=0.3,
@@ -365,9 +373,10 @@ class InstructAny2PixPipeline:
                 (k,v) for (k,v,i) in zip(extra_data['all_objs'],extra_data['extra_embeds'],extra_data['extra_idx']) if mm_data[i]['type']=='image'
             ]
             # try:
-            oo,an = subject_consistency(subject_data,output_caption,oo,self.sam,self.gdino,self.ip_adapter_xl_inpaint,subject_strength)
+            #     oo,an = subject_consistency(subject_data,output_caption,oo,self.sam,self.gdino,self.ip_adapter_xl_inpaint,subject_strength)
             # except:
             #     an = {}
+            an = {}
         else:
             subject_data = []
         if not debug:

@@ -2,7 +2,9 @@ import torch
 #from diffusers import StableDiffusionXLImg2ImgPipeline,StableDiffusionXLPipeline
 from ..ddim.sdxl_pipeline import StableDiffusionXLPipeline
 from diffusers.utils import load_image
-from diffusers.models.unet_2d_condition import UNet2DConditionOutput
+# from diffusers.models.unet_2d_condition import UNet2DConditionOutput
+from diffusers.models.unets.unet_2d_condition import UNet2DConditionOutput
+# unet_2d_condition import UNet2DConditionOutput
 import diffusers
 from diffusers import (
     AutoencoderKL,

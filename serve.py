@@ -5,7 +5,9 @@ import torch
 load = True
 if load:
     from instructany2pix import InstructAny2PixPipeline
-    pipe = InstructAny2PixPipeline(llm_folder='llm-instance')
+    ckpt = "instructany2pix_retrained"
+    llm_folder = 'llm-retrained'
+    pipe = InstructAny2PixPipeline(ckpt, llm_folder=llm_folder)
     pipe.pipe.scheduler = pipe.pipe_inversion.scheduler
 else:
     def pipe(*args,**kwargs):

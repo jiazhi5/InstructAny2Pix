@@ -6,3 +6,6 @@ test*.ipynb
 scripts/train_local.sh
 local/
 MM-Inst-Train/
+instructany2pix_retrained*
+.checkpoints*
+.gradio*
